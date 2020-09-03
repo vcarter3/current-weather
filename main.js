@@ -1,5 +1,5 @@
 window.addEventListener('load', ()=> {
-    const apiKey = config.API_KEY;
+    //const apiKey = config.API_KEY;
 
 
     let long;
