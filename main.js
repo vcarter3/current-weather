@@ -1,8 +1,6 @@
 window.addEventListener('load', ()=> {
 
-
     const apiKey = config.API_KEY;
-
 
     let long;
     let lat;
@@ -42,32 +40,40 @@ window.addEventListener('load', ()=> {
                 .then(data => {
                     console.log(data);
                     const {Temperature, WeatherText, LocalObservationDateTime, WeatherIcon} = data[0];
-
-                    temperatureDegree.textContent = Temperature.Metric.Value;
                     temperatureDescription.textContent = WeatherText;
-                    
+
+                    temperatureUnit(Temperature, temperatureSpan, temperatureDegree);
                     setIcons(WeatherIcon, document.querySelector(".icon"));
-
-
-                    //
-                    temperatureSection.addEventListener('click', () => {
-                        if(temperatureSpan.textContent == "F"){
-                            temperatureSpan.textContent = "C";
-                            temperatureDegree.textContent = Temperature.Metric.Value
-                        } else {
-                            temperatureSpan.textContent = "F";
-                            temperatureDegree.textContent = Temperature.Imperial.Value
-                        }
-                    })
-
 
                 })
 
         });
+    } else{
+        console.log("no location shared");
     }
 
+    function temperatureUnit(Temperature, temperatureSpan, temperatureDegree){
+        // change unit from F to C and back ... metric by default
+
+        temperatureDegree.textContent = Temperature.Metric.Value;
+
+        temperatureSection.addEventListener('click', () => {
+
+            if(temperatureSpan.textContent == "F"){
+                temperatureDegree.textContent = Temperature.Metric.Value;
+
+                temperatureSpan.textContent = "C";
+            } else {
+                temperatureDegree.textContent = Temperature.Imperial.Value;
+
+                temperatureSpan.textContent = "F";
+            }
+        }
+        )
+        }
+
     function setIcons(WeatherIcon, iconID){
-        //match WeatherIcon number to skycon text
+        // match WeatherIcon number to skycon function
 
         const skycons = new Skycons({color: "white"});
         let currentIcon = "PARTLY_CLOUDY_DAY";
