@@ -1,10 +1,6 @@
 window.addEventListener('load', ()=> {
-    //const apiKey = config.API_KEY;
 
-
-    let long;
-    let lat;
-
+    
     let temperatureDescription = document.querySelector(".temperature-description");
     let temperatureDegree = document.querySelector(".temperature-degree");
     let locationPlace = document.querySelector(".location-place");
@@ -12,7 +8,14 @@ window.addEventListener('load', ()=> {
     let temperatureSection = document.querySelector(".temperature");
     const temperatureSpan = document.querySelector(".temperature span");
 
+
+
     
+    const apiKey = config.API_KEY;
+
+    let long;
+    let lat;
+
     if(navigator.geolocation){
 
         navigator.geolocation.getCurrentPosition(position => {
@@ -58,14 +61,11 @@ window.addEventListener('load', ()=> {
         temperatureDegree.textContent = Temperature.Metric.Value;
 
         temperatureSection.addEventListener('click', () => {
-
             if(temperatureSpan.textContent == "F"){
                 temperatureDegree.textContent = Temperature.Metric.Value;
-
                 temperatureSpan.textContent = "C";
             } else {
                 temperatureDegree.textContent = Temperature.Imperial.Value;
-
                 temperatureSpan.textContent = "F";
             }
         }
@@ -112,5 +112,6 @@ window.addEventListener('load', ()=> {
     }
 
 
-
+    
 });
+
