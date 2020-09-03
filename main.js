@@ -32,7 +32,6 @@ window.addEventListener('load', ()=> {
                     const {LocalizedName, Key} = data;
                 
                     locationPlace.textContent = LocalizedName;
-                    console.log(apiKey);
 
                     return fetch(`http://dataservice.accuweather.com/currentconditions/v1/${Key}.json?apikey=${apiKey}`)
 
@@ -41,7 +40,6 @@ window.addEventListener('load', ()=> {
                     return response.json();
                 })
                 .then(data => {
-                    console.log(data);
                     const {Temperature, WeatherText, LocalObservationDateTime, WeatherIcon} = data[0];
                     temperatureDescription.textContent = WeatherText;
 
