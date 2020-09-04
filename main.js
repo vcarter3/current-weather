@@ -1,5 +1,4 @@
 window.addEventListener('load', ()=> {
-
     
     let temperatureDescription = document.querySelector(".temperature-description");
     let temperatureDegree = document.querySelector(".temperature-degree");
@@ -8,8 +7,6 @@ window.addEventListener('load', ()=> {
     let temperatureSection = document.querySelector(".temperature");
     const temperatureSpan = document.querySelector(".temperature span");
 
-
-
     
     const apiKey = config.API_KEY;
 
@@ -17,8 +14,11 @@ window.addEventListener('load', ()=> {
     let lat;
 
     if(navigator.geolocation){
+        
 
         navigator.geolocation.getCurrentPosition(position => {
+            document.querySelector(".no-location").remove();
+
             long = position.coords.longitude;
             lat = position.coords.latitude;
 
@@ -40,23 +40,113 @@ window.addEventListener('load', ()=> {
                     return response.json();
                 })
                 .then(data => {
-                    const {Temperature, WeatherText, LocalObservationDateTime, WeatherIcon} = data[0];
+                    const {Temperature, WeatherText, WeatherIcon} = data[0];
                     temperatureDescription.textContent = WeatherText;
 
                     temperatureUnit(Temperature, temperatureSpan, temperatureDegree);
                     setIcons(WeatherIcon, document.querySelector(".icon"));
 
-                })
+                })}, (error) => {
+                    console.log("no location");
+                    if(error){
+                        
+                        document.querySelector(".button").innerHTML = '<input id="userLocation" placeholder= "Enter town or city"></input>';
 
-        });
-    } else{
-        console.log("no location shared");
-    }
+                        document.querySelector(".location-error").textContent = "Cannot find location";
+                        
+                        document.querySelector(".button").addEventListener('keydown', (e) => {
+                            if(e.keyCode === 13){
+                                console.log("yes");
+                                console.log(document.getElementById("userLocation").value);
+
+
+                                const userLocation = document.getElementById("userLocation").value;
+
+
+                                const api_autocomplete = `http://dataservice.accuweather.com/locations/v1/cities/autocomplete?apikey=${apiKey}&q=${userLocation}&language=en-uk`;
+
+                                fetch(api_autocomplete)
+                                .then(response => {
+                                    return response.json();
+                                })
+
+                                .then(data => {
+                                    console.log(data);
+                                    if(data.length > 0 ){
+                                        let i = 0;
+                                        for(let i = 0; i<3; i++){
+                                            let {LocalizedName, Country, Key} = data[i];
+                                            //console.log(LocalizedName + ' ' + Country.LocalizedName);
+                                            document.querySelector(".suggestions" + String(i)).textContent = LocalizedName + ' ' + Country.LocalizedName;
+
+                                            
+                                            // on click
+                                            
+                                            document.querySelector(".suggestions" + String(i)).addEventListener('click', () => {
+
+                                                const selectLocation = document.querySelector(".suggestions" + String(i)).textContent;
+                                                
+                                                console.log(selectLocation);
+                                                console.log(LocalizedName + ' ' + Country.LocalizedName);
+                                                console.log(Key);
+                                                
+
+                                                // remove all
+                                                document.querySelector(".no-location").remove();
+                                                locationPlace.textContent = selectLocation;
+
+                                                // search new api
+
+                                                fetch(`http://dataservice.accuweather.com/currentconditions/v1/${Key}.json?apikey=${apiKey}`)
+
+                                                .then(response => {
+                                                    return response.json();
+                                                })
+                                                .then(data => {
+                                                    const {Temperature, WeatherText, WeatherIcon} = data[0];
+                                                    temperatureDescription.textContent = WeatherText;
+                                
+                                                    temperatureUnit(Temperature, temperatureSpan, temperatureDegree);
+                                                    setIcons(WeatherIcon, document.querySelector(".icon"));
+                                
+                                                })
+                                            
+                                            });
+                                        }
+  
+                                    }
+        
+                                })
+                                
+                                
+                               
+          
+                               
+
+                               
+                                
+
+                            }
+                            
+                        });
+
+
+
+
+                    } 
+                        
+                }
+        );
+
+    } 
+
 
     function temperatureUnit(Temperature, temperatureSpan, temperatureDegree){
         // change unit from F to C and back ... metric by default
 
         temperatureDegree.textContent = Temperature.Metric.Value;
+        temperatureSpan.textContent = "C";
+
 
         temperatureSection.addEventListener('click', () => {
             if(temperatureSpan.textContent == "F"){

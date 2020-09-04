@@ -42,3 +42,10 @@ body {
 .degree-section h2{
     font-size:40px;
 }
+
+.no-location{
+    align-items: center;
+    
+    justify-content: space-around;
+
+}
