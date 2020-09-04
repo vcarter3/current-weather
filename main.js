@@ -1,13 +1,12 @@
 window.addEventListener('load', ()=> {
     
-    let temperatureDescription = document.querySelector(".temperature-description");
-    let temperatureDegree = document.querySelector(".temperature-degree");
-    let locationPlace = document.querySelector(".location-place");
-
-    let temperatureSection = document.querySelector(".temperature");
+    const temperatureDescription = document.querySelector(".temperature-description");
+    const temperatureDegree = document.querySelector(".temperature-degree");
+    const locationName = document.querySelector(".location-name");
+    const locationRegion = document.querySelector(".location-region");
+    const temperatureSection = document.querySelector(".temperature");
     const temperatureSpan = document.querySelector(".temperature span");
 
-    
     const apiKey = config.API_KEY;
 
     let long;
@@ -22,16 +21,18 @@ window.addEventListener('load', ()=> {
             long = position.coords.longitude;
             lat = position.coords.latitude;
 
-            const api = `http://dataservice.accuweather.com/locations/v1/cities/geoposition/search.json?q=${lat},${long}&apikey=${apiKey}`
+            const api_geolocation = `http://dataservice.accuweather.com/locations/v1/cities/geoposition/search.json?q=${lat},${long}&apikey=${apiKey}`
             
-            fetch(api)
+            fetch(api_geolocation)
                 .then(response => {
                     return response.json();
                 })
                 .then(data => {
-                    const {LocalizedName, Key} = data;
+                    const {LocalizedName, Country, Key} = data;
+                    console.log(data);
                 
-                    locationPlace.textContent = LocalizedName;
+                    locationName.textContent = LocalizedName;
+                    locationRegion.textContent = Country.ID;
 
                     return fetch(`http://dataservice.accuweather.com/currentconditions/v1/${Key}.json?apikey=${apiKey}`)
 
@@ -76,7 +77,7 @@ window.addEventListener('load', ()=> {
                                         let i = 0;
                                         for(let i = 0; i<3; i++){
                                             let {LocalizedName, Country, Key} = data[i];
-                                            //console.log(LocalizedName + ' ' + Country.LocalizedName);
+                                            
                                             document.querySelector(".suggestions" + String(i)).textContent = LocalizedName + ' ' + Country.LocalizedName;
 
                                             
@@ -86,14 +87,13 @@ window.addEventListener('load', ()=> {
 
                                                 const selectLocation = document.querySelector(".suggestions" + String(i)).textContent;
                                                 
-                                                console.log(selectLocation);
-                                                console.log(LocalizedName + ' ' + Country.LocalizedName);
-                                                console.log(Key);
-                                                
+                                                locationName.textContent = selectLocation;
+                                                locationRegion.textContent = Country.ID;
 
                                                 // remove all
+
                                                 document.querySelector(".no-location").remove();
-                                                locationPlace.textContent = selectLocation;
+                                                
 
                                                 // search new api
 
