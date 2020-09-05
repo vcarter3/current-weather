@@ -1,205 +1,197 @@
-window.addEventListener('load', ()=> {
-    
+window.addEventListener("load", () => {
     const temperatureDescription = document.querySelector(".temperature-description");
     const temperatureDegree = document.querySelector(".temperature-degree");
     const locationName = document.querySelector(".location-name");
     const locationRegion = document.querySelector(".location-region");
     const temperatureSection = document.querySelector(".temperature");
     const temperatureSpan = document.querySelector(".temperature span");
+    const noLocation = document.querySelector(".no-location");
+    const locationError = document.querySelector(".location-error");
+    const inputText = document.querySelector(".button");
+
+
+
 
     const apiKey = config.API_KEY;
 
     let long;
     let lat;
 
-    if(navigator.geolocation){
-        
+    if (navigator.geolocation) {
+        navigator.geolocation.getCurrentPosition(
+            (position) => {
 
-        navigator.geolocation.getCurrentPosition(position => {
-            document.querySelector(".no-location").remove();
+                noLocation.remove();
 
-            long = position.coords.longitude;
-            lat = position.coords.latitude;
+                long = position.coords.longitude;
+                lat = position.coords.latitude;
 
-            const api_geolocation = `http://dataservice.accuweather.com/locations/v1/cities/geoposition/search.json?q=${lat},${long}&apikey=${apiKey}`
-            
-            fetch(api_geolocation)
-                .then(response => {
-                    return response.json();
-                })
-                .then(data => {
-                    const {LocalizedName, Country, Key} = data;
-                    console.log(data);
-                
-                    locationName.textContent = LocalizedName;
-                    locationRegion.textContent = Country.ID;
+                const api_geolocation = `http://dataservice.accuweather.com/locations/v1/cities/geoposition/search.json?q=${lat},${long}&apikey=${apiKey}`;
 
-                    return fetch(`http://dataservice.accuweather.com/currentconditions/v1/${Key}.json?apikey=${apiKey}`)
+                fetch(api_geolocation)
+                    .then((response) => {
+                        return response.json();
+                    })
+                    .then((data) => {
+                        const { LocalizedName, Country, Key } = data;
 
-                })
-                .then(response => {
-                    return response.json();
-                })
-                .then(data => {
-                    const {Temperature, WeatherText, WeatherIcon} = data[0];
-                    temperatureDescription.textContent = WeatherText;
+                        locationName.textContent = LocalizedName;
+                        locationRegion.textContent = Country.ID;
 
-                    temperatureUnit(Temperature, temperatureSpan, temperatureDegree);
-                    setIcons(WeatherIcon, document.querySelector(".icon"));
+                        return fetch(
+                            `http://dataservice.accuweather.com/currentconditions/v1/${Key}.json?apikey=${apiKey}`
+                        );
+                    })
+                    .then((response) => {
+                        return response.json();
+                    })
+                    .then((data) => {
+                        const { Temperature, WeatherText, WeatherIcon } = data[0];
+                        temperatureDescription.textContent = WeatherText;
 
-                })}, (error) => {
-                    console.log("no location");
-                    if(error){
-                        
-                        document.querySelector(".button").innerHTML = '<input id="userLocation" placeholder= "Enter town or city"></input>';
+                        temperatureUnit(Temperature, temperatureSpan, temperatureDegree);
+                        setIcons(WeatherIcon, document.querySelector(".icon"));
+                    });
+            },
+            (error) => {
+                console.log("no location");
+                if (error) {
+                    inputText.innerHTML =
+                        '<input class="user-location" placeholder= "Enter town or city"></input>';
 
-                        document.querySelector(".location-error").textContent = "Cannot find location";
-                        
-                        document.querySelector(".button").addEventListener('keydown', (e) => {
-                            if(e.keyCode === 13){
-                                console.log("yes");
-                                console.log(document.getElementById("userLocation").value);
+                    locationError.textContent = "Cannot find location";
 
 
-                                const userLocation = document.getElementById("userLocation").value;
+                    inputText.addEventListener("keydown", (e) => {
+                        if (e.keyCode === 13) {
+                            
 
+                            const userLocation = document.querySelector(".user-location").value;
 
-                                const api_autocomplete = `http://dataservice.accuweather.com/locations/v1/cities/autocomplete?apikey=${apiKey}&q=${userLocation}&language=en-uk`;
+                            const api_autocomplete = `http://dataservice.accuweather.com/locations/v1/cities/autocomplete?apikey=${apiKey}&q=${userLocation}&language=en-uk`;
 
-                                fetch(api_autocomplete)
-                                .then(response => {
+                            fetch(api_autocomplete)
+                                .then((response) => {
                                     return response.json();
                                 })
 
-                                .then(data => {
+                                .then((data) => {
                                     console.log(data);
-                                    if(data.length > 0 ){
+                                    if (data.length > 0) {
                                         let i = 0;
-                                        for(let i = 0; i<3; i++){
-                                            let {LocalizedName, Country, Key} = data[i];
-                                            
-                                            document.querySelector(".suggestions" + String(i)).textContent = LocalizedName + ' ' + Country.LocalizedName;
+                                        for (let i = 0; i < 3; i++) {
+                                            let { LocalizedName, Country, Key } = data[i];
 
-                                            
+                                            document.querySelector(
+                                                ".suggestions" + String(i)
+                                            ).textContent =
+                                                LocalizedName + " " + Country.LocalizedName;
+
                                             // on click
-                                            
-                                            document.querySelector(".suggestions" + String(i)).addEventListener('click', () => {
 
-                                                const selectLocation = document.querySelector(".suggestions" + String(i)).textContent;
-                                                
-                                                locationName.textContent = selectLocation;
-                                                locationRegion.textContent = Country.ID;
+                                            document
+                                                .querySelector(".suggestions" + String(i))
+                                                .addEventListener("click", () => {
+                                                    const selectLocation = document.querySelector(
+                                                        ".suggestions" + String(i)
+                                                    ).textContent;
 
-                                                // remove all
+                                                    locationName.textContent = selectLocation;
+                                                    locationRegion.textContent = Country.ID;
 
-                                                document.querySelector(".no-location").remove();
-                                                
+                                                    // remove all
 
-                                                // search new api
+                                                    document.querySelector(".no-location").remove();
 
-                                                fetch(`http://dataservice.accuweather.com/currentconditions/v1/${Key}.json?apikey=${apiKey}`)
+                                                    // search new api
 
-                                                .then(response => {
-                                                    return response.json();
-                                                })
-                                                .then(data => {
-                                                    const {Temperature, WeatherText, WeatherIcon} = data[0];
-                                                    temperatureDescription.textContent = WeatherText;
-                                
-                                                    temperatureUnit(Temperature, temperatureSpan, temperatureDegree);
-                                                    setIcons(WeatherIcon, document.querySelector(".icon"));
-                                
-                                                })
-                                            
-                                            });
+                                                    fetch(
+                                                        `http://dataservice.accuweather.com/currentconditions/v1/${Key}.json?apikey=${apiKey}`
+                                                    )
+                                                        .then((response) => {
+                                                            return response.json();
+                                                        })
+                                                        .then((data) => {
+                                                            const {
+                                                                Temperature,
+                                                                WeatherText,
+                                                                WeatherIcon,
+                                                            } = data[0];
+                                                            temperatureDescription.textContent = WeatherText;
+
+                                                            temperatureUnit(
+                                                                Temperature,
+                                                                temperatureSpan,
+                                                                temperatureDegree
+                                                            );
+                                                            setIcons(
+                                                                WeatherIcon,
+                                                                document.querySelector(".icon")
+                                                            );
+                                                        });
+                                                });
                                         }
-  
                                     }
-        
-                                })
-                                
-                                
-                               
-          
-                               
-
-                               
-                                
-
-                            }
-                            
-                        });
-
-
-
-
-                    } 
-                        
+                                });
+                        }
+                    });
                 }
+            }
         );
+    }
 
-    } 
-
-
-    function temperatureUnit(Temperature, temperatureSpan, temperatureDegree){
+    function temperatureUnit(Temperature, temperatureSpan, temperatureDegree) {
         // change unit from F to C and back ... metric by default
 
         temperatureDegree.textContent = Temperature.Metric.Value;
         temperatureSpan.textContent = "C";
 
-
-        temperatureSection.addEventListener('click', () => {
-            if(temperatureSpan.textContent == "F"){
+        temperatureSection.addEventListener("click", () => {
+            if (temperatureSpan.textContent == "F") {
                 temperatureDegree.textContent = Temperature.Metric.Value;
                 temperatureSpan.textContent = "C";
             } else {
                 temperatureDegree.textContent = Temperature.Imperial.Value;
                 temperatureSpan.textContent = "F";
             }
-        }
-        )
-        }
+        });
+    }
 
-    function setIcons(WeatherIcon, iconID){
+    function setIcons(WeatherIcon, iconID) {
         // match WeatherIcon number to skycon function
 
-        const skycons = new Skycons({color: "white"});
+        const skycons = new Skycons({ color: "white" });
         let currentIcon = "PARTLY_CLOUDY_DAY";
 
-        const CLEAR_DAY = [1,2,3,30];
-        const CLEAR_NIGHT = [33,34]
+        const CLEAR_DAY = [1, 2, 3, 30];
+        const CLEAR_NIGHT = [33, 34];
         //const PARTLY_CLOUDY_DAY = [4,5]
-        const CLOUDY = [6,7,8,35,36,37, 38];
-        const RAIN = [12,13,14,15,16,17,18,26,29,39,40,41,42,43,44];
-        const SLEET = [19,20,21,25];
-        const SNOW = [22,23,24,31];
+        const CLOUDY = [6, 7, 8, 35, 36, 37, 38];
+        const RAIN = [12, 13, 14, 15, 16, 17, 18, 26, 29, 39, 40, 41, 42, 43, 44];
+        const SLEET = [19, 20, 21, 25];
+        const SNOW = [22, 23, 24, 31];
         const WIND = [32];
         const FOG = [11];
 
-        if(CLEAR_DAY.includes(WeatherIcon)){
+        if (CLEAR_DAY.includes(WeatherIcon)) {
             currentIcon = "CLEAR_DAY";
-        } else if (CLEAR_NIGHT.includes(WeatherIcon)){
+        } else if (CLEAR_NIGHT.includes(WeatherIcon)) {
             currentIcon = "CLEAR_NIGHT";
-        } else if (CLOUDY.includes(WeatherIcon)){
+        } else if (CLOUDY.includes(WeatherIcon)) {
             currentIcon = "CLOUDY";
-        } else if (RAIN.includes(WeatherIcon)){
+        } else if (RAIN.includes(WeatherIcon)) {
             currentIcon = "RAIN";
-        } else if (SLEET.includes(WeatherIcon)){
+        } else if (SLEET.includes(WeatherIcon)) {
             currentIcon = "SLEET";
-        } else if (SNOW.includes(WeatherIcon)){
+        } else if (SNOW.includes(WeatherIcon)) {
             currentIcon = "SNOW";
-        } else if (WIND.includes(WeatherIcon)){
+        } else if (WIND.includes(WeatherIcon)) {
             currentIcon = "WIND";
-        } else if (FOG.includes(WeatherIcon)){
+        } else if (FOG.includes(WeatherIcon)) {
             currentIcon = "FOG";
         }
 
         skycons.play();
         return skycons.set(iconID, Skycons[currentIcon]);
-
     }
-
-
-    
 });
-
