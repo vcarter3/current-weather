@@ -1,5 +1,6 @@
 <!DOCTYPE html>
 <html lang="en">
+
 <head>
     <meta charset="UTF-8">
     <meta name="viewport" content="width=device-width, initial-scale=1.0">
@@ -7,37 +8,51 @@
 
     <link rel="stylesheet" href="./style.css" />
     <script src="skycons.js"></script>
+    <link rel="stylesheet"
+        href="https://fonts.googleapis.com/css2?family=Material+Symbols+Outlined:opsz,wght,FILL,GRAD@48,400,0,0" />
+    <link rel="stylesheet"
+        href="https://fonts.googleapis.com/css2?family=Material+Symbols+Outlined:opsz,wght,FILL,GRAD@48,400,0,0" />
 </head>
 
-
-
 <body>
+    <div class="no-location">
+        <div class="container">
+            <div class="button">
+                <input class="user-location" placeholder="Enter town or city"></input>
+                <button class="user-auto"><span class="material-symbols-outlined">
+                        location_on
+                    </span></button>
+                <button class="user-search"><span class="material-symbols-outlined">
+                        search
+                    </span></button>
+            </div>
 
-    <div class= "location">
-        <h1 class= "location-name"></h1>
-        <h2 class = "location-region"></h2>
-        <canvas class = "icon"></canvas>
-    </div>
-
-    <div class= "no-location">
-        <h1 class = "location-error"></h1>
-
-        <div class = "container">
-            <div class = "button"></div>
-            <div class = "suggestions"></div>
+            <div class="suggestions"></div>
         </div>
     </div>
+    <div class="controls">
 
-    <div class= "temperature">
+    </div>
+
+    <div class="location">
+        <h1 class="location-name"></h1>
+        <h2 class="location-region"></h2>
+        <canvas class="icon"></canvas>
+    </div>
+
+
+
+    <div class="temperature">
         <div class="degree-section">
-            <h2 class = "temperature-degree"></h2>
+            <h2 class="temperature-degree"></h2>
             <span></span>
         </div>
-        <div class = "temperature-description"></div>
+        <div class="temperature-description"></div>
     </div>
 
-    <script src = config.js></script>
-    <script src = "main.js"></script>
-    
+    <script src=config.js></script>
+    <script src="main.js"></script>
+
 </body>
+
 </html>
