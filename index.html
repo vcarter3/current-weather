@@ -12,16 +12,19 @@
         href="https://fonts.googleapis.com/css2?family=Material+Symbols+Outlined:opsz,wght,FILL,GRAD@48,400,0,0" />
     <link rel="stylesheet"
         href="https://fonts.googleapis.com/css2?family=Material+Symbols+Outlined:opsz,wght,FILL,GRAD@48,400,0,0" />
+    <link rel="icon" type="image/x-icon" href="https://cdn-icons-png.flaticon.com/512/2948/2948217.png">
+
 </head>
 
 <body>
-    <div class="no-location">
+    <div class="search-container">
         <div class="container">
             <div class="button">
-                <input class="user-location" placeholder="Enter town or city"></input>
                 <button class="user-auto"><span class="material-symbols-outlined">
                         location_on
                     </span></button>
+                <input class="user-location" placeholder="Enter town or city" required></input>
+
                 <button class="user-search"><span class="material-symbols-outlined">
                         search
                     </span></button>
@@ -30,17 +33,12 @@
             <div class="suggestions"></div>
         </div>
     </div>
-    <div class="controls">
-
-    </div>
 
     <div class="location">
         <h1 class="location-name"></h1>
         <h2 class="location-region"></h2>
         <canvas class="icon"></canvas>
     </div>
-
-
 
     <div class="temperature">
         <div class="degree-section">
