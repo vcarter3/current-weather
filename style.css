@@ -1,3 +1,26 @@
+@media (prefers-color-scheme: dark) {
+    :root {
+        --background: linear-gradient(#192a35, #171010, #151819);
+        --color: rgb(201, 201, 201);
+        --suggestionsBg: rgba(31, 31, 31, 0.315);
+        --suggestionsBorder: rgba(34, 34, 34, 0.109);
+        --suggestionsHover: rgba(90, 90, 90, 0.315);
+    }
+}
+
+@media (prefers-color-scheme: light) {
+
+    /* Light theme styles go here */
+    :root {
+        --background: linear-gradient(#2e92da, #1cc1df, #7dca9d);
+        --color: white;
+        --suggestionsBg: rgba(90, 90, 90, 0.315);
+        --suggestionsBorder: rgba(205, 205, 206, 0.109);
+        --suggestionsHover: rgba(180, 180, 180, 0.315);
+    }
+}
+
+
 * {
     margin: 0;
     padding: 0;
@@ -11,12 +34,13 @@ body {
     justify-content: center;
     flex-direction: column;
     align-items: center;
-    background: linear-gradient(#2e92da, #1cc1df,#7dca9d);
+    background: var(--background);
     font-family: sans-serif;
-    color: white;
+    color: var(--color)
 }
 
-.location, .temperature {
+.location,
+.temperature {
     height: 30vh;
     width: 50%;
     display: flex;
@@ -24,62 +48,73 @@ body {
     align-items: center;
 }
 
-.temperature{
+.temperature {
     flex-direction: column;
 }
 
-.degree-section{
+.degree-section {
     display: flex;
     align-items: center;
     cursor: pointer;
 }
 
-.degree-section span{
-    margin:10px;
+.degree-section span {
+    margin: 10px;
     font-size: 30px;
 }
 
-.degree-section h2{
-    font-size:40px;
+.degree-section h2 {
+    font-size: 40px;
 }
 
-.suggestions > div{
-    border-top: 1px solid rgba(205, 205, 206, 0.109);
-    background-color: rgba(90, 90, 90, 0.315);
+.suggestions {
+    position: absolute;
+}
+
+.suggestions>div {
+    backdrop-filter: blur(10px);
+    width: clamp(18em, 42vw, 29em);
+    border-top: 1px solid var(--suggestionsBorder);
+    background-color: var(--suggestionsBg);
     padding: 10px;
-    
 }
 
-.suggestions :hover{
+.suggestions :hover {
     cursor: pointer;
-    background-color: rgba(180, 180, 180, 0.315);
-    
+    background-color: var(--suggestionsHover);
 }
 
+button {
+    cursor: pointer;
+}
 
-.button input, ::placeholder{
+button,
+.button input,
+::placeholder {
+    text-align: center;
     background: transparent;
-    color: white;
+    color: var(--color);
     border: none;
     font-size: 20px;
-    padding: 10px; 
+    padding: 10px;
     outline: none;
-    
+
 }
 
-.button{
-    background-color: rgba(180, 180, 180, 0.315);
-    border-bottom: 2px solid rgba(205, 205, 206, 0.109);
-    position:relative;
-    
+
+
+.button {
+    display: flex;
+    flex-direction: row;
+    justify-content: space-between;
+    width: clamp(18em, 42vw, 29em);
+    background-color:var(--suggestionsHover);
+    border-bottom: 2px solid var(--suggestionsBorder);
+    position: static;
 }
 
 .container {
-    border: 2px solid rgba(255, 255, 255, 0.109);
+    border: 2px solid var(--suggestionsBorder);
     border-radius: 5px;
     font-size: 20px;
-
-    
-
-   
 }

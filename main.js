@@ -1,138 +1,135 @@
-window.addEventListener("load", () => {
-    const auto = document.querySelector(".user-auto");
-
-    auto.addEventListener("click", () => {
-        // auto find location
-        autoWeather();
-    });
-
-    const search = document.querySelector(".user-search");
-
-    search.addEventListener("click", () => {
-        // auto find location
-        manualWeather();
-    });
-
-});
-
-
-
 const temperatureDescription = document.querySelector(".temperature-description");
 const temperatureDegree = document.querySelector(".temperature-degree");
 const locationName = document.querySelector(".location-name");
 const locationRegion = document.querySelector(".location-region");
 const temperatureSection = document.querySelector(".temperature");
 const temperatureSpan = document.querySelector(".temperature span");
-const noLocation = document.querySelector(".no-location");
+const searchBar = document.querySelector(".search-container");
 const locationError = document.querySelector(".location-error");
-const inputText = document.querySelector(".button");
 const apiKey = config.API_KEY;
+
+const events = () => {
+    const auto = document.querySelector(".user-auto");
+    const search = document.querySelector(".user-search");
+    const inputText = document.querySelector(".button");
+
+    // auto find location
+    auto.addEventListener("click", () => {
+        autoWeather();
+    });
+
+    // manual find location
+    search.addEventListener("click", () => {
+        manualWeather();
+    });
+    inputText.addEventListener("keydown", (e) => {
+        if (e.keyCode === 13) {
+            manualWeather();
+        }
+    })
+};
+
+events();
+
+
+
+async function weatherLatLong(lat, long) {
+    const response = await fetch(`http://dataservice.accuweather.com/locations/v1/cities/geoposition/search.json?q=${lat},${long}&apikey=${apiKey}`, { mode: 'cors' });
+
+    const weatherData = await response.json();
+
+
+    const { LocalizedName, Country, Key } = weatherData;
+    locationName.textContent = LocalizedName;
+    locationRegion.textContent = Country.ID;
+
+    return findCurrentWeather(Key, apiKey)
+}
 
 function autoWeather() {
     if (navigator.geolocation) {
         navigator.geolocation.getCurrentPosition(
             (position) => {
-                noLocation.remove();
+
                 let long = position.coords.longitude;
                 let lat = position.coords.latitude;
-                const api_geolocation = `http://dataservice.accuweather.com/locations/v1/cities/geoposition/search.json?q=${lat},${long}&apikey=${apiKey}`;
-
-                fetch(api_geolocation)
-                    .then((response) => {
-                        return response.json();
-                    })
-                    .then((data) => {
-                        const { LocalizedName, Country, Key } = data;
-
-                        locationName.textContent = LocalizedName;
-                        locationRegion.textContent = Country.ID;
-
-                        return findCurrentWeather(Key, apiKey)
-                    })
+                weatherLatLong(lat, long);
             }
             ,
-            () => {
-                findLocationManually(inputText, locationError);
-            }
+            console.log("asking for geo-location")
         );
+    } else {
+        console.log("no geo-location")
     }
 }
 
-
-function manualWeather(){
-    // 
-    console.log("no")
+function manualWeather() {
+    // use input
+    const userLocation = document.querySelector(".user-location").value;
+    if (userLocation == "") { return }
+    weatherUserLocation(userLocation)
 }
 
-function findCurrentWeather(Key, apiKey) {
-    const api_weather = `http://dataservice.accuweather.com/currentconditions/v1/${Key}.json?apikey=${apiKey}`;
-    fetch(api_weather)
-        .then((response) => {
-            return response.json();
-        })
-        .then((data) => {
-            const {
-                Temperature,
-                WeatherText,
-                WeatherIcon,
-            } = data[0];
-            temperatureDescription.textContent = WeatherText;
+async function findCurrentWeather(Key, apiKey) {
+    const response = await fetch(`http://dataservice.accuweather.com/currentconditions/v1/${Key}.json?apikey=${apiKey}`, { mode: "cors" })
+    console.log(response)
+    const weatherData = await response.json();
 
-            temperatureUnit(
-                Temperature,
-                temperatureSpan,
-                temperatureDegree
-            );
-            setIcons(
-                WeatherIcon,
-                document.querySelector(".icon")
-            );
-        });
+    const {
+        Temperature,
+        WeatherText,
+        WeatherIcon,
+    } = weatherData[0];
+    temperatureDescription.textContent = WeatherText;
+
+    temperatureUnit(
+        Temperature,
+        temperatureSpan,
+        temperatureDegree
+    );
+    setIcons(
+        WeatherIcon,
+        document.querySelector(".icon")
+    );
 
 }
 
-function findLocationManually(inputText) {
-    inputText.addEventListener("keydown", (e) => {
-        if (e.keyCode === 13) {
-            //  enter key
-            const userLocation = document.querySelector(".user-location").value;
-            const api_autocomplete = `http://dataservice.accuweather.com/locations/v1/cities/autocomplete?apikey=${apiKey}&q=${userLocation}&language=en-uk`;
-            fetch(api_autocomplete)
-                .then((response) => {
-                    return response.json();
+async function weatherUserLocation(userLocation) {
+    const response = await fetch(`http://dataservice.accuweather.com/locations/v1/cities/autocomplete?apikey=${apiKey}&q=${userLocation}&language=en-uk`, { mode: 'cors' });
+    const weatherData = await response.json();
+
+    if (weatherData.length > 0) {
+        const suggestions = document.querySelector(".suggestions");
+        let suggestionsMax = (weatherData.length < 3 ? weatherData.length : 3)
+
+        for (let i = 0; i < suggestionsMax; i++) {
+            const newSuggestion = document.createElement("div");
+            newSuggestion.className = "suggestions" + String(i);
+            suggestions.appendChild(newSuggestion);
+
+            let { AdministrativeArea, LocalizedName, Country, Key } = weatherData[i];
+            const suggestion = document.querySelector(".suggestions" + String(i));
+            suggestion.textContent = LocalizedName + ", " + AdministrativeArea.LocalizedName + ", " + Country.ID;
+
+            suggestion.addEventListener("click", () => {
+                locationName.textContent = LocalizedName;
+                locationRegion.textContent = Country.ID;
+                // remove all
+
+                [...suggestions.children].forEach(suggestion => {
+                    suggestion.remove()
                 })
-                .then((data) => {
 
-
-                    if (data.length > 0) {
-
-                        console.log(data);
-
-                        document.querySelector(".suggestions").innerHTML = `<div class = "suggestions0"></div><div class = "suggestions1"></div><div class = "suggestions2"></div>`;
-
-                        for (let i = 0; i < 3; i++) {
-
-                            let { AdministrativeArea, LocalizedName, Country, Key } = data[i];
-                            const suggestion = document.querySelector(".suggestions" + String(i));
-                            suggestion.textContent = LocalizedName + ", " + AdministrativeArea.LocalizedName + ", " + Country.ID;
-
-
-                            suggestion.addEventListener("click", () => {
-
-                                locationName.textContent = LocalizedName;
-                                locationRegion.textContent = Country.ID;
-
-                                // remove all
-                                document.querySelector(".no-location").remove();
-
-                                // search new api
-                                findCurrentWeather(Key, apiKey);
-                            });
-                        }
-                    }
-                });
+                const clearInput = document.querySelector(".user-location");
+                clearInput.value = "";
+                clearInput.placeholder = "Change town or city";
+                // search new api
+                return findCurrentWeather(Key, apiKey);
+            });
         }
-    });
+    } else {
+
+    }
 }
 
 
@@ -153,10 +150,19 @@ function temperatureUnit(Temperature, temperatureSpan, temperatureDegree) {
     });
 }
 
-function setIcons(WeatherIcon, iconID) {
-    // match WeatherIcon number to skycon function
 
-    const skycons = new Skycons({ color: "white" });
+
+function colorMode() {
+    const prefersDarkScheme = window.matchMedia("(prefers-color-scheme: dark)");
+    if(prefersDarkScheme.matches){
+        return "gray"
+    }else{
+    return "white"}
+}
+function setIcons(WeatherIcon, iconID) {
+    const iconColor = colorMode();
+    // match WeatherIcon number to skycon function
+    const skycons = new Skycons({ color: iconColor });
     let currentIcon = "PARTLY_CLOUDY_DAY";
 
     const CLEAR_DAY = [1, 2, 3, 30];
