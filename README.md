@@ -1,6 +1,6 @@
 ## A weather landing page
 
-#### 🧪 [Live Demo]([https://reverent-mcnulty-6c8fda.netlify.app/])
+#### 🧪 [Live Demo](https://reverent-mcnulty-6c8fda.netlify.app)
 
 
 #### 🔔  Features
